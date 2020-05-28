@@ -100,6 +100,17 @@ Maven 中默认是只会打包 resource下的资源文件。如果我们的文�
   "http://mybatis.org/dtd/mybatis-3-config.dtd">
 <configuration>
 这里边写配置  写的时候配置项之间是有先后顺序的 否则会报错 idea会标红 调整一下就可以
+正确的顺序是
+properties?, 
+settings?, 
+typeAliases?, 
+typeHandlers?, 
+objectFactory?,
+objectWrapperFactory?, 
+plugins?, 
+environments?, 
+databaseIdProvider?, 
+mappers?
 </configuration>
 
 里边的配置项可以在官网查到  
@@ -401,3 +412,53 @@ public interface Mapper {
   List<Blog> selectBlog();
 }
 ```
+### 接下来学习mybatis的分页 这个mybatis的分页用的是github上开源的程序 还是个中国人写的
+使用起来很简单
+第一步引入依赖
+先说说mybaits如何引入
+```xml
+<dependency>
+    <groupId>com.github.pagehelper</groupId>
+    <artifactId>pagehelper</artifactId>
+    <version>latest version</version>
+</dependency>
+```
+还支持spring和spring-boot的引入方法
+第二步加上配置
+mybatis用法需要在mybatis的配置文件里加上一个插件的标签配置一些属性很简单
+<plugins>
+    <plugin interceptor="com.github.pagehelper.PageInterceptor">
+        这里边这些属性简单写一下github上有完整的解释
+        helperDialect: 写数据库的类型 oracle, mysql, mariadb, sqlite, hsqldb, postgresql, db2, sqlserver, informix, h2, sqlserver2012, derby
+	    offsetAsPageNum
+	    rowBoundsWithCount
+	    pageSizeZero
+	    reasonable
+	    params
+	    supportMethodsArguments
+	    autoRuntimeDialect
+	    closeConn
+	    aggregateFunctions
+	</plugin>
+</plugins>
+注意plugins的位置就行
+配置几个觉得有用的基本上就能用了2分钟极速入门
+第三步骤 查询的时候调用一下他提供的方法就给分页了
+用法也超级简单
+好几种用法
+1. use by RowBounds
+```
+List<User> list = sqlSession.selectList("x.y.selectIf", null, new RowBounds(0, 10));
+```
+2. interface
+List<User> list = userMapper.selectIf(1, new RowBounds(0, 10));
+3. PageRowBounds
+PageRowBounds rowBounds = new PageRowBounds(0, 10);
+List<User> list = userMapper.selectIf(1, rowBounds);
+long total = rowBounds.getTotal();
+
+4. use static method startPage 我用的这个 但是这个是有点安全隐患的啊
+写了之后后边必须写上查询语句 还得挨着否则就线程不安全 一直挂那了 会乱 可能别的查询的时候就用这个了
+PageHelper.startPage(1, 10);
+List<User> list = userMapper.selectIf(1);
+这个用着很清爽 我选择的这个 注意别写入bug就行
