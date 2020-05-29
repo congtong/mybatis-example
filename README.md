@@ -420,7 +420,7 @@ public interface Mapper {
 <dependency>
     <groupId>com.github.pagehelper</groupId>
     <artifactId>pagehelper</artifactId>
-    <version>latest version</version>
+    <version>latest version</version>   注意用最新版本 因为旧版本会提示包找不到的问题
 </dependency>
 ```
 还支持spring和spring-boot的引入方法
@@ -461,4 +461,60 @@ long total = rowBounds.getTotal();
 写了之后后边必须写上查询语句 还得挨着否则就线程不安全 一直挂那了 会乱 可能别的查询的时候就用这个了
 PageHelper.startPage(1, 10);
 List<User> list = userMapper.selectIf(1);
-这个用着很清爽 我选择的这个 注意别写入bug就行
+这个用着很清爽 我选择的这个 只需要注意跟查询挨着不会有什么问题
+
+5. use static method offsetPage
+PageHelper.offsetPage(1, 10);
+List<User> list = userMapper.selectIf(1);
+6. method parameters
+public interface CountryMapper {
+    List<User> selectByPageNumSize(
+            @Param("user") User user,
+            @Param("pageNum") int pageNum, 
+            @Param("pageSize") int pageSize);
+}
+//config supportMethodsArguments=true
+List<User> list = userMapper.selectByPageNumSize(user, 1, 10);
+7. POJO parameters
+public class User {
+    //other fields
+    //The following two parameters must be the same name as the params parameter
+    private Integer pageNum;
+    private Integer pageSize;
+}
+public interface CountryMapper {
+    List<User> selectByPageNumSize(User user);
+}
+//When the pageNum! = null && pageSize! = null in the user instance, this method will be automatically pagination
+List<User> list = userMapper.selectByPageNumSize(user);
+8. ISelect interface
+jdk6,7 anonymous class, return Page
+Page<User> page = PageHelper.startPage(1, 10).doSelectPage(new ISelect() {
+    @Override
+    public void doSelect() {
+        userMapper.selectGroupBy();
+    }
+});
+//jdk8 lambda
+Page<User> page = PageHelper.startPage(1, 10).doSelectPage(()-> userMapper.selectGroupBy());
+9. return PageInfo
+pageInfo = PageHelper.startPage(1, 10).doSelectPageInfo(new ISelect() {
+    @Override
+    public void doSelect() {
+        userMapper.selectGroupBy();
+    }
+});
+10 . in lambda
+pageInfo = PageHelper.startPage(1, 10).doSelectPageInfo(() -> userMapper.selectGroupBy());
+
+11. do count only
+long total = PageHelper.count(new ISelect() {
+    @Override
+    public void doSelect() {
+        userMapper.selectLike(user);
+    }
+});
+
+12. lambda
+total = PageHelper.count(()->userMapper.selectLike(user));
+

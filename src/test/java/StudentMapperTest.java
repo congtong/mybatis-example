@@ -1,3 +1,5 @@
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import entity.Student;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
@@ -12,6 +14,10 @@ import java.util.List;
 
 public class StudentMapperTest {
     private static SqlSessionFactory sqlSessionFactory;
+
+    //@BeforeClass -> @Before -> @Test -> @After -> @AfterClass;
+    //@Before -> @Test -> @After;
+
     @BeforeClass
     public static void init() {
         try {
@@ -39,10 +45,21 @@ public class StudentMapperTest {
 //            }
 //        }
         try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+
             List<Student> students = sqlSession.selectList("selectAll");
             for (int i = 0; i < students.size(); i++) {
                 System.out.println(students.get(i));
             }
+        }
+    }
+
+    @Test
+    public void testSelectListPage() {
+        try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
+            PageHelper.startPage(1, 4);
+            List<Student> students = sqlSession.selectList("selectAll");
+            PageInfo pageInfo = new PageInfo(students);
+            System.out.println(pageInfo.getTotal());
         }
     }
 }
