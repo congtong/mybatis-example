@@ -413,6 +413,7 @@ public interface Mapper {
 }
 ```
 ### 接下来学习mybatis的分页 这个mybatis的分页用的是github上开源的程序 还是个中国人写的
+当然我们用的这个分页插件也是一个叫tk mybatis里用的 当然还有一个mybatis-plush的一个mybatis功能增强框架里有自己的分页
 使用起来很简单
 第一步引入依赖
 先说说mybaits如何引入
@@ -520,4 +521,5 @@ total = PageHelper.count(()->userMapper.selectLike(user));
 
 spring 和 springboot  跟直接使用没有任务区别 只是配置简单了
 使用的实例可以看看测试的例子
+
 
