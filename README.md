@@ -518,3 +518,6 @@ long total = PageHelper.count(new ISelect() {
 12. lambda
 total = PageHelper.count(()->userMapper.selectLike(user));
 
+spring 和 springboot  跟直接使用没有任务区别 只是配置简单了
+使用的实例可以看看测试的例子
+
